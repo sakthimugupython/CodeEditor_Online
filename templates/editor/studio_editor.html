@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeStudio - Interactive Environment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0F1419;
+            color: #E8EAED;
+            overflow: hidden;
+        }
+        
+        .studio-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Header */
+        .studio-header {
+            background: linear-gradient(90deg, #0B3C5D 0%, rgba(11, 60, 93, 0.95) 100%);
+            border-bottom: 1px solid #2D3748;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .studio-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #00E5FF, #7B61FF);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0B3C5D;
+            font-weight: 800;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        
+        .logo-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        
+        .logo-subtitle {
+            font-size: 0.65rem;
+            color: #A8ADB5;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-item {
+            color: #A8ADB5;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 0.25rem;
+        }
+        
+        .nav-item:hover,
+        .nav-item.active {
+            color: #00E5FF;
+            border-bottom-color: #00E5FF;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .language-selector {
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            color: #00E5FF;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-weight: 600;
+        }
+        
+        .language-selector:hover {
+            background: rgba(0, 229, 255, 0.2);
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+        
+        .language-selector:focus {
+            outline: none;
+            background: rgba(0, 229, 255, 0.2);
+            border-color: #00E5FF;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+        
+        .language-selector option {
+            background: #1A1F2E;
+            color: #E8EAED;
+            padding: 0.5rem;
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        /* Main Content */
+        .studio-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 1px;
+        }
+        
+        /* Sidebar - Hidden */
+        .studio-sidebar {
+            display: none;
+        }
+        
+        /* Editor Area */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0F1419;
+            min-width: 0;
+        }
+        
+        /* Split Layout Container */
+        .split-container {
+            display: flex;
+            flex: 1;
+            gap: 1px;
+            overflow: hidden;
+        }
+        
+        .editor-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0F1419;
+            min-width: 0;
+        }
+        
+        .editor-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1A1F2E;
+            border-left: 1px solid #2D3748;
+            min-width: 0;
+        }
+        
+        .editor-tabs {
+            display: flex;
+            gap: 0;
+            background: #1A1F2E;
+            border-bottom: 1px solid #2D3748;
+            padding: 0 1rem;
+        }
+        
+        .editor-tab {
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            color: #A8ADB5;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .editor-tab:hover {
+            color: #E8EAED;
+        }
+        
+        .editor-tab.active {
+            color: #00E5FF;
+            border-bottom-color: #00E5FF;
+        }
+        
+        .tab-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 0.25rem;
+            margin-left: 0.5rem;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .tab-close:hover {
+            color: #EF4444;
+        }
+        
+        .editor-tab-add {
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            color: #A8ADB5;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .editor-tab-add:hover {
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .editor-header {
+            padding: 0.75rem 1rem;
+            background: #252D3D;
+            border-bottom: 1px solid #2D3748;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .editor-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #E8EAED;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .editor-title:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .file-name-input {
+            background: rgba(15, 20, 25, 0.8);
+            border: 1px solid #00E5FF;
+            color: #E8EAED;
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: 'Fira Code', monospace;
+            outline: none;
+            max-width: 200px;
+        }
+        
+        .file-type-selector {
+            background: rgba(15, 20, 25, 0.8);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: #E8EAED;
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-type-selector:hover {
+            border-color: #00E5FF;
+        }
+        
+        .file-type-selector:focus {
+            outline: none;
+            border-color: #00E5FF;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-tertiary {
+            background: transparent;
+            color: #A8ADB5;
+            border: 1px solid transparent;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-tertiary:hover {
+            background: rgba(0, 229, 255, 0.1);
+            color: #00E5FF;
+            border-color: rgba(0, 229, 255, 0.2);
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+        }
+        
+        .editor-wrapper {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .code-editor {
+            width: 100%;
+            height: 100%;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            background: #0F1419;
+            color: #E8EAED;
+            border: none;
+            padding: 1rem;
+            resize: none;
+            outline: none;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-dialog {
+            background: #1A1F2E;
+            border: 1px solid #2D3748;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #2D3748;
+            padding-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #E8EAED;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #A8ADB5;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: #00E5FF;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #E8EAED;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 20, 25, 0.5);
+            border: 1px solid #2D3748;
+            border-radius: 6px;
+            color: #E8EAED;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .form-input:hover,
+        .form-textarea:hover,
+        .form-select:hover {
+            border-color: #00E5FF;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00E5FF;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-save {
+            flex: 1;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: #A8ADB5;
+            border: 1px solid #2D3748;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-cancel:hover {
+            border-color: #00E5FF;
+            color: #00E5FF;
+        }
+        
+        /* Output Panel */
+        .output-panel {
+            flex: 1;
+            background: #1A1F2E;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .output-header {
+            padding: 0.75rem 1rem;
+            background: #252D3D;
+            border-bottom: 1px solid #2D3748;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .output-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #E8EAED;
+            font-weight: 600;
+        }
+        
+        .output-info {
+            font-size: 0.8rem;
+            color: #A8ADB5;
+        }
+        
+        .output-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .output-content.empty {
+            color: #A8ADB5;
+            text-align: center;
+        }
+        
+        .output-content:not(.empty) {
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        
+        .output-line {
+            margin-bottom: 0.5rem;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .output-line.success {
+            color: #10B981;
+        }
+        
+        .output-line.error {
+            color: #EF4444;
+        }
+        
+        .output-line.warning {
+            color: #F59E0B;
+        }
+        
+        .output-line.info {
+            color: #00E5FF;
+        }
+        
+        .output-empty {
+            color: #A8ADB5;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .split-container {
+                flex-direction: column;
+            }
+            
+            .editor-right {
+                border-left: none;
+                border-top: 1px solid #2D3748;
+                min-height: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+            
+            .editor-right {
+                border-left: none;
+                border-top: 1px solid #2D3748;
+                min-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-container">
+        <!-- Header -->
+        <header class="studio-header">
+            <div class="header-left">
+                <div class="studio-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="logo-text">
+                        <div class="logo-title">CodeStudio</div>
+                        <div class="logo-subtitle">Interactive Environment</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-nav">
+                <div class="nav-item active">Editor</div>
+                <div class="nav-item">History</div>
+                <div class="nav-item">Profile</div>
+            </div>
+            
+            <div class="header-right">
+                <select class="language-selector" id="languageSelector">
+                    <option value="python">🐍 Python</option>
+                    <option value="java">☕ Java</option>
+                    <option value="javascript">📜 JavaScript</option>
+                </select>
+                
+                <button class="run-btn">
+                    <i class="fas fa-play"></i>
+                    Run Code
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="studio-content">
+            <!-- Split Container -->
+            <div class="split-container">
+                <!-- Left: Editor -->
+                <div class="editor-left">
+                    <div class="editor-tabs" id="editorTabs">
+                        <button class="editor-tab active" data-file-id="0">
+                            <i class="fas fa-file-code"></i>
+                            <span class="tab-name">Untitled.py</span>
+                            <button class="tab-close" onclick="closeTab(0)" title="Close">×</button>
+                        </button>
+                    </div>
+                    <button class="editor-tab-add" onclick="createNewFile()" title="New File">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    
+                    <div class="editor-header">
+                        <div class="editor-title" onclick="startRenameFile()" title="Click to rename">
+                            <i class="fas fa-file-code"></i>
+                            <span id="currentFileName">Untitled.py</span>
+                            <i class="fas fa-edit" style="font-size: 0.75rem; opacity: 0.6;"></i>
+                        </div>
+                        <div class="editor-actions">
+                            <select class="file-type-selector" id="fileTypeSelector" title="Change file type">
+                                <option value="python">🐍 Python</option>
+                                <option value="java">☕ Java</option>
+                                <option value="javascript">📜 JavaScript</option>
+                            </select>
+                            <button class="btn btn-tertiary btn-icon" onclick="downloadFile()" title="Download File">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-tertiary btn-icon" id="clearBtn" title="Clear">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-wrapper">
+                        <textarea class="code-editor" placeholder="Write your code here..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Right: Output -->
+                <div class="editor-right">
+                    <div class="output-panel">
+                        <div class="output-header">
+                            <div class="output-title">
+                                <i class="fas fa-terminal"></i>
+                                Console Output
+                            </div>
+                            <div class="output-info" id="outputInfo">Running on Python 3.9.7</div>
+                        </div>
+                        
+                        <div class="output-content empty">
+                            <div>
+                                <div style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <div style="color: #A8ADB5;">
+                                    Click Execute to run your code
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        class CodeStudioEditor {
+            constructor() {
+                this.currentLanguage = 'python';
+                this.isExecuting = false;
+                this.executionHistory = [];
+                this.snippets = [];
+                this.init();
+            }
+            
+            init() {
+                this.setupElements();
+                this.setupEventListeners();
+            }
+            
+            setupElements() {
+                this.editor = document.querySelector('.code-editor');
+                this.runBtn = document.querySelector('.run-btn');
+                this.outputContent = document.querySelector('.output-content');
+                this.languageSelector = document.querySelector('.language-selector');
+                this.outputInfo = document.getElementById('outputInfo');
+                this.navItems = document.querySelectorAll('.nav-item');
+            }
+            
+            setupEventListeners() {
+                // Run button
+                this.runBtn.addEventListener('click', () => this.executeCode());
+                
+                // Language selector
+                this.languageSelector.addEventListener('change', (e) => this.changeLanguage(e.target.value));
+                
+                // Navigation
+                this.navItems.forEach(item => {
+                    item.addEventListener('click', (e) => this.handleNavigation(e.target));
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+                
+                // File type selector
+                const fileTypeSelector = document.getElementById('fileTypeSelector');
+                if (fileTypeSelector) {
+                    fileTypeSelector.addEventListener('change', (e) => changeFileType(e.target.value));
+                }
+            }
+            
+            async executeCode() {
+                const code = this.editor.value;
+                if (!code.trim()) {
+                    this.showOutput('Please write some code first', 'warning');
+                    return;
+                }
+                
+                this.isExecuting = true;
+                this.runBtn.disabled = true;
+                this.runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+                
+                try {
+                    const startTime = performance.now();
+                    
+                    const response = await fetch('/api/execution/execute/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify({
+                            code: code,
+                            language: this.currentLanguage,
+                            stdin: '',
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    const endTime = performance.now();
+                    const executionTime = ((endTime - startTime) / 1000).toFixed(3);
+                    
+                    console.log('API Response:', data);
+                    console.log('Stdout:', data.stdout);
+                    console.log('Stderr:', data.stderr);
+                    
+                    this.displayExecutionResults(data, executionTime);
+                    this.addToHistory(data, executionTime);
+                    
+                } catch (error) {
+                    this.showOutput(`Error: ${error.message}`, 'error');
+                } finally {
+                    this.isExecuting = false;
+                    this.runBtn.disabled = false;
+                    this.runBtn.innerHTML = '<i class="fas fa-play"></i> Run Code';
+                }
+            }
+            
+            displayExecutionResults(data, executionTime) {
+                let output = '';
+                
+                // Execution info
+                output += `<div class="output-line info">⏱ Executed at ${new Date().toLocaleTimeString()}</div>`;
+                
+                // Debug: log the data
+                console.log('Execution data:', data);
+                
+                // Show stdout
+                if (data.stdout && data.stdout.trim()) {
+                    const lines = data.stdout.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            output += `<div class="output-line">➜ ${line}</div>`;
+                        }
+                    });
+                } else if (!data.stdout || data.stdout.trim() === '') {
+                    // If no stdout, show a message
+                    if (data.status === 'success') {
+                        output += `<div class="output-line info">✓ Program executed successfully (no output)</div>`;
+                    }
+                }
+                
+                // Show stderr
+                if (data.stderr && data.stderr.trim()) {
+                    const lines = data.stderr.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            output += `<div class="output-line error">✗ ${line}</div>`;
+                        }
+                    });
+                }
+                
+                // Show status
+                if (data.status === 'success') {
+                    output += `<div class="output-line success">✓ [SUCCESS] Execution completed in ${executionTime}s</div>`;
+                } else if (data.status === 'error') {
+                    output += `<div class="output-line error">✗ [ERROR] Execution failed</div>`;
+                } else if (data.status === 'timeout') {
+                    output += `<div class="output-line warning">⏱ [TIMEOUT] Execution exceeded time limit</div>`;
+                }
+                
+                // Remove empty class and set content
+                this.outputContent.classList.remove('empty');
+                this.outputContent.innerHTML = output;
+            }
+            
+            showOutput(message, type = 'info') {
+                const className = type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+                this.outputContent.innerHTML = `<div class="output-line ${className}">${message}</div>`;
+            }
+            
+            addToHistory(data, executionTime) {
+                const item = {
+                    language: this.currentLanguage,
+                    status: data.status,
+                    time: new Date().toLocaleTimeString(),
+                    executionTime: executionTime,
+                    code: this.editor.value
+                };
+                
+                this.executionHistory.unshift(item);
+            }
+            
+
+            changeLanguage(lang) {
+                this.currentLanguage = lang;
+                
+                // Update select value
+                const selector = document.getElementById('languageSelector');
+                if (selector) {
+                    selector.value = lang;
+                }
+                
+                // Update output info
+                const langInfo = {
+                    'python': 'Running on Python 3.9.7',
+                    'java': 'Running on Java 11',
+                    'javascript': 'Running on Node.js 16'
+                };
+                
+                if (this.outputInfo) {
+                    this.outputInfo.textContent = langInfo[lang] || 'Running on ' + lang;
+                }
+            }
+            
+            handleNavigation(target) {
+                const navText = target.textContent.trim();
+                
+                if (navText === 'History') {
+                    window.location.href = '/editor/history/';
+                } else if (navText === 'Profile') {
+                    window.location.href = '/editor/profile/';
+                } else if (navText === 'Editor') {
+                    // Already on editor
+                }
+                
+                this.navItems.forEach(item => item.classList.remove('active'));
+                target.classList.add('active');
+            }
+            
+
+            
+            handleKeyboardShortcuts(e) {
+                // Ctrl/Cmd + Enter: Execute
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    this.executeCode();
+                }
+            }
+            
+            getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        }
+        
+        // File Management
+        let openFiles = {
+            0: { name: 'Untitled.py', language: 'python', content: '' }
+        };
+        let nextFileId = 1;
+        let currentFileId = 0;
+        
+        function createNewFile() {
+            const fileId = nextFileId++;
+            const fileName = `Untitled${nextFileId}.py`;
+            openFiles[fileId] = { name: fileName, language: 'python', content: '' };
+            
+            // Save current file content
+            openFiles[currentFileId].content = editor.editor.value;
+            
+            // Create new tab
+            const tabsContainer = document.getElementById('editorTabs');
+            const newTab = document.createElement('button');
+            newTab.className = 'editor-tab active';
+            newTab.dataset.fileId = fileId;
+            newTab.innerHTML = `
+                <i class="fas fa-file-code"></i>
+                <span class="tab-name">${fileName}</span>
+                <button class="tab-close" onclick="closeTab(${fileId})" title="Close">×</button>
+            `;
+            newTab.addEventListener('click', () => switchFile(fileId));
+            
+            // Remove active from other tabs
+            document.querySelectorAll('.editor-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            tabsContainer.insertBefore(newTab, tabsContainer.lastElementChild);
+            switchFile(fileId);
+        }
+        
+        function switchFile(fileId) {
+            // Save current file
+            openFiles[currentFileId].content = editor.editor.value;
+            
+            // Update tabs
+            document.querySelectorAll('.editor-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-file-id="${fileId}"]`).classList.add('active');
+            
+            // Load new file
+            currentFileId = fileId;
+            const file = openFiles[fileId];
+            editor.editor.value = file.content;
+            editor.changeLanguage(file.language);
+            
+            // Update filename display
+            document.getElementById('currentFileName').textContent = file.name;
+        }
+        
+        function closeTab(fileId) {
+            event.stopPropagation();
+            
+            if (Object.keys(openFiles).length === 1) {
+                alert('Cannot close the last file');
+                return;
+            }
+            
+            // Remove tab
+            document.querySelector(`[data-file-id="${fileId}"]`).remove();
+            delete openFiles[fileId];
+            
+            // Switch to another file
+            const remainingFileId = Object.keys(openFiles)[0];
+            switchFile(parseInt(remainingFileId));
+        }
+        
+        function downloadFile() {
+            const file = openFiles[currentFileId];
+            const content = editor.editor.value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+        
+        function startRenameFile() {
+            const currentFile = openFiles[currentFileId];
+            const fileNameSpan = document.getElementById('currentFileName');
+            const currentName = currentFile.name;
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'file-name-input';
+            input.value = currentName;
+            
+            // Replace span with input
+            fileNameSpan.replaceWith(input);
+            input.focus();
+            input.select();
+            
+            function saveNewName() {
+                const newName = input.value.trim();
+                if (newName && newName !== currentName) {
+                    currentFile.name = newName;
+                    
+                    // Update tab name
+                    const tab = document.querySelector(`[data-file-id="${currentFileId}"] .tab-name`);
+                    if (tab) tab.textContent = newName;
+                }
+                
+                // Create new span
+                const newSpan = document.createElement('span');
+                newSpan.id = 'currentFileName';
+                newSpan.textContent = currentFile.name;
+                input.replaceWith(newSpan);
+            }
+            
+            input.addEventListener('blur', saveNewName);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') saveNewName();
+                if (e.key === 'Escape') {
+                    const newSpan = document.createElement('span');
+                    newSpan.id = 'currentFileName';
+                    newSpan.textContent = currentName;
+                    input.replaceWith(newSpan);
+                }
+            });
+        }
+        
+        function changeFileType(newLanguage) {
+            const currentFile = openFiles[currentFileId];
+            const extensionMap = {
+                'python': '.py',
+                'java': '.java',
+                'javascript': '.js'
+            };
+            
+            // Update language
+            currentFile.language = newLanguage;
+            editor.changeLanguage(newLanguage);
+            
+            // Update file extension if needed
+            const currentExt = currentFile.name.substring(currentFile.name.lastIndexOf('.'));
+            const newExt = extensionMap[newLanguage];
+            
+            if (currentExt !== newExt) {
+                const baseName = currentFile.name.substring(0, currentFile.name.lastIndexOf('.'));
+                currentFile.name = baseName + newExt;
+                
+                // Update display
+                document.getElementById('currentFileName').textContent = currentFile.name;
+                
+                // Update tab name
+                const tab = document.querySelector(`[data-file-id="${currentFileId}"] .tab-name`);
+                if (tab) tab.textContent = currentFile.name;
+            }
+        }
+        
+        // Initialize editor
+        let editor;
+        document.addEventListener('DOMContentLoaded', () => {
+            editor = new CodeStudioEditor();
+        });
+    </script>
+</body>
+</html>

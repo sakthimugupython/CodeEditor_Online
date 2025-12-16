@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeStudio - Interactive Code Environment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0F1419 0%, #1A1F2E 50%, #0B3C5D 100%);
+            color: #E8EAED;
+            line-height: 1.6;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(90deg, #0B3C5D 0%, rgba(11, 60, 93, 0.95) 100%);
+            border-bottom: 1px solid #2D3748;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00E5FF;
+            text-decoration: none;
+        }
+        
+        .navbar-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00E5FF, #7B61FF);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0B3C5D;
+            font-weight: 800;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #A8ADB5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link:hover {
+            color: #00E5FF;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(11, 60, 93, 0.3) 0%, rgba(123, 97, 255, 0.1) 100%);
+            border-bottom: 1px solid #2D3748;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00E5FF, #7B61FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #A8ADB5;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00E5FF, #00D4E8);
+            color: #0B3C5D;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #00E5FF;
+            border: 2px solid #00E5FF;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 229, 255, 0.1);
+            transform: translateY(-4px);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: #E8EAED;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .feature-card {
+            background: rgba(26, 31, 46, 0.8);
+            border: 1px solid #2D3748;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: #00E5FF;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #00E5FF;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #E8EAED;
+        }
+        
+        .feature-text {
+            color: #A8ADB5;
+            font-size: 0.95rem;
+        }
+        
+        /* Languages Section */
+        .languages {
+            padding: 4rem 2rem;
+            background: rgba(11, 60, 93, 0.2);
+            border-top: 1px solid #2D3748;
+            border-bottom: 1px solid #2D3748;
+        }
+        
+        .languages-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .languages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .language-card {
+            background: rgba(26, 31, 46, 0.8);
+            border: 1px solid #2D3748;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .language-card:hover {
+            border-color: #7B61FF;
+            box-shadow: 0 0 15px rgba(123, 97, 255, 0.2);
+        }
+        
+        .language-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .language-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #E8EAED;
+            margin-bottom: 0.5rem;
+        }
+        
+        .language-desc {
+            font-size: 0.85rem;
+            color: #A8ADB5;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #0B3C5D;
+            border-top: 1px solid #2D3748;
+            padding: 2rem;
+            text-align: center;
+            color: #A8ADB5;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="navbar-logo">
+                <i class="fas fa-code"></i>
+            </div>
+            <span>CodeStudio</span>
+        </a>
+        
+        <div class="navbar-nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'editor' %}" class="nav-link">
+                    <i class="fas fa-edit"></i> Editor
+                </a>
+                <a href="{% url 'execution_history' %}" class="nav-link">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="{% url 'profile' %}" class="nav-link">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="{% url 'logout' %}" class="nav-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{% url 'register' %}" class="nav-btn">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="hero-title">Welcome to CodeStudio</h1>
+        <p class="hero-subtitle">Write, execute, and manage code in multiple programming languages with a secure, intelligent environment</p>
+        
+        <div class="hero-buttons">
+            <a href="{% url 'studio_editor' %}" class="btn-primary">
+                <i class="fas fa-play"></i> Start Coding
+            </a>
+            <a href="#features" class="btn-secondary">
+                <i class="fas fa-arrow-down"></i> Learn More
+            </a>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">Powerful Features</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3 class="feature-title">Write Code</h3>
+                <p class="feature-text">Professional code editor with syntax highlighting for Python, C, C++, and Java</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <h3 class="feature-title">Execute Instantly</h3>
+                <p class="feature-text">Run your code in a secure, isolated environment with real-time output</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-save"></i>
+                </div>
+                <h3 class="feature-title">Save Snippets</h3>
+                <p class="feature-text">Store and organize your code snippets for quick reuse</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="feature-title">Track History</h3>
+                <p class="feature-text">View complete execution history with detailed results and timestamps</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Secure Execution</h3>
+                <p class="feature-text">Resource limits and isolation prevent abuse and ensure safety</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h3 class="feature-title">User Profiles</h3>
+                <p class="feature-text">Personalized workspace with statistics and profile management</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Languages Section -->
+    <section class="languages">
+        <div class="languages-container">
+            <h2 class="section-title">Supported Languages</h2>
+            
+            <div class="languages-grid">
+                <div class="language-card">
+                    <div class="language-emoji">🐍</div>
+                    <div class="language-name">Python</div>
+                    <div class="language-desc">Python 3 with full standard library</div>
+                </div>
+                
+                <div class="language-card">
+                    <div class="language-emoji">⚙️</div>
+                    <div class="language-name">C++</div>
+                    <div class="language-desc">C++ with G++ compiler</div>
+                </div>
+                
+                <div class="language-card">
+                    <div class="language-emoji">🔧</div>
+                    <div class="language-name">C</div>
+                    <div class="language-desc">C with GCC compiler</div>
+                </div>
+                
+                <div class="language-card">
+                    <div class="language-emoji">☕</div>
+                    <div class="language-name">Java</div>
+                    <div class="language-desc">Java with JDK support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 CodeStudio. All rights reserved.</p>
+        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Built with Django, REST Framework, and modern web technologies</p>
+    </footer>
+</body>
+</html>

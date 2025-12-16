@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - CodeStudio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0F1419;
+            color: #E8EAED;
+        }
+        
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .profile-header {
+            background: linear-gradient(90deg, #0B3C5D 0%, rgba(11, 60, 93, 0.95) 100%);
+            border-bottom: 1px solid #2D3748;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #00E5FF;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #A8ADB5;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #00E5FF;
+        }
+        
+        .profile-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .profile-title {
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+        
+        .profile-card {
+            background: #1A1F2E;
+            border: 1px solid #2D3748;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #00E5FF, #7B61FF);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #0B3C5D;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-username {
+            color: #A8ADB5;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-email {
+            color: #A8ADB5;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-box {
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #A8ADB5;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #00E5FF;
+        }
+        
+        .edit-form {
+            background: #1A1F2E;
+            border: 1px solid #2D3748;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #E8EAED;
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 20, 25, 0.5);
+            border: 1px solid #2D3748;
+            border-radius: 6px;
+            color: #E8EAED;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .form-input:hover,
+        .form-textarea:hover {
+            border-color: #00E5FF;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00E5FF;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .save-btn {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <header class="profile-header">
+            <div class="header-title">
+                <i class="fas fa-code"></i> CodeStudio
+            </div>
+            <nav class="header-nav">
+                <a href="/editor/" class="nav-link">Editor</a>
+                <a href="/editor/history/" class="nav-link">History</a>
+                <a href="/editor/profile/" class="nav-link active">Profile</a>
+                <a href="/accounts/logout/" class="nav-link">Logout</a>
+            </nav>
+        </header>
+        
+        <div class="profile-content">
+            <div class="profile-title">
+                <i class="fas fa-user-circle"></i>
+                User Profile
+            </div>
+            
+            <div class="profile-grid">
+                <!-- Profile Info -->
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="profile-username">@{{ user.username }}</div>
+                    <div class="profile-email">{{ user.email }}</div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Snippets</div>
+                            <div class="stat-value">{{ stats.total_snippets }}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Executions</div>
+                            <div class="stat-value">{{ stats.total_executions }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Edit Form -->
+                <div class="edit-form">
+                    <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Edit Profile</h3>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-textarea" name="bio" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Avatar</label>
+                            <input type="file" class="form-input" name="avatar" accept="image/*">
+                        </div>
+                        
+                        <button type="submit" class="save-btn">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

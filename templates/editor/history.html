@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution History - CodeStudio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0F1419;
+            color: #E8EAED;
+        }
+        
+        .history-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .history-header {
+            background: linear-gradient(90deg, #0B3C5D 0%, rgba(11, 60, 93, 0.95) 100%);
+            border-bottom: 1px solid #2D3748;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #00E5FF;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #A8ADB5;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #00E5FF;
+        }
+        
+        .history-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .history-title {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.75rem 1rem;
+            background: #1A1F2E;
+            border: 1px solid #2D3748;
+            border-radius: 6px;
+            color: #E8EAED;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .filter-select:hover {
+            border-color: #00E5FF;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1A1F2E;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-table thead {
+            background: #252D3D;
+            border-bottom: 1px solid #2D3748;
+        }
+        
+        .history-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #00E5FF;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .history-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #2D3748;
+            font-size: 0.9rem;
+        }
+        
+        .history-table tbody tr:hover {
+            background: rgba(0, 229, 255, 0.05);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        
+        .status-timeout {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        
+        .language-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: rgba(92, 107, 192, 0.2);
+            color: #5C6BC0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            background: transparent;
+            border: 1px solid #2D3748;
+            color: #00E5FF;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: #00E5FF;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #A8ADB5;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: #1A1F2E;
+            border: 1px solid #2D3748;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #2D3748;
+            padding-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #A8ADB5;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: #00E5FF;
+        }
+        
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #00E5FF;
+            margin-bottom: 0.75rem;
+        }
+        
+        .modal-code {
+            background: #0F1419;
+            border: 1px solid #2D3748;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #E8EAED;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .modal-output {
+            background: #0F1419;
+            border: 1px solid #2D3748;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #E8EAED;
+            overflow-x: auto;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .modal-output.error {
+            color: #EF4444;
+        }
+        
+        .modal-output.empty {
+            color: #A8ADB5;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .history-content {
+                padding: 1rem;
+            }
+            
+            .history-table {
+                font-size: 0.85rem;
+            }
+            
+            .history-table th,
+            .history-table td {
+                padding: 0.75rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <header class="history-header">
+            <div class="header-title">
+                <i class="fas fa-code"></i> CodeStudio
+            </div>
+            <nav class="header-nav">
+                <a href="/editor/" class="nav-link">Editor</a>
+                <a href="/editor/history/" class="nav-link active">History</a>
+                <a href="/editor/profile/" class="nav-link">Profile</a>
+                <a href="/accounts/logout/" class="nav-link">Logout</a>
+            </nav>
+        </header>
+        
+        <div class="history-content">
+            <div class="history-title">
+                <i class="fas fa-history"></i>
+                Execution History
+            </div>
+            
+            <div class="filter-section">
+                <select class="filter-select" id="languageFilter">
+                    <option value="">All Languages</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                    <option value="c">C</option>
+                    <option value="java">Java</option>
+                </select>
+                
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="success">Success</option>
+                    <option value="error">Error</option>
+                    <option value="timeout">Timeout</option>
+                </select>
+            </div>
+            
+            {% if executions %}
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Status</th>
+                            <th>Execution Time</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for execution in executions %}
+                            <tr>
+                                <td>
+                                    <span class="language-badge">
+                                        {% if execution.language == 'python' %}
+                                            🐍 Python
+                                        {% elif execution.language == 'cpp' %}
+                                            ⚙️ C++
+                                        {% elif execution.language == 'c' %}
+                                            🔧 C
+                                        {% elif execution.language == 'java' %}
+                                            ☕ Java
+                                        {% else %}
+                                            {{ execution.language|upper }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if execution.status == 'success' %}
+                                        <span class="status-badge status-success">
+                                            <i class="fas fa-check-circle"></i>
+                                            Success
+                                        </span>
+                                    {% elif execution.status == 'error' %}
+                                        <span class="status-badge status-error">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            Error
+                                        </span>
+                                    {% elif execution.status == 'timeout' %}
+                                        <span class="status-badge status-timeout">
+                                            <i class="fas fa-hourglass-end"></i>
+                                            Timeout
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ execution.execution_time|floatformat:3 }}s</td>
+                                <td>{{ execution.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <button class="action-btn" onclick="viewExecution({{ execution.id }}, '{{ execution.code|escapejs }}', '{{ execution.stdout|escapejs }}', '{{ execution.stderr|escapejs }}', '{{ execution.status }}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h3>No execution history yet</h3>
+                    <p>Start by running some code in the editor</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div id="executionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Execution Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">Code</div>
+                <div class="modal-code" id="modalCode"></div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">Output</div>
+                <div class="modal-output" id="modalOutput"></div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">Errors</div>
+                <div class="modal-output" id="modalErrors"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function viewExecution(id, code, stdout, stderr, status) {
+            const modal = document.getElementById('executionModal');
+            const codeDiv = document.getElementById('modalCode');
+            const outputDiv = document.getElementById('modalOutput');
+            const errorsDiv = document.getElementById('modalErrors');
+            
+            // Display code
+            codeDiv.textContent = code || 'No code available';
+            
+            // Display output
+            if (stdout) {
+                outputDiv.textContent = stdout;
+                outputDiv.classList.remove('empty');
+            } else {
+                outputDiv.innerHTML = '<div class="empty">No output</div>';
+                outputDiv.classList.add('empty');
+            }
+            
+            // Display errors
+            if (stderr) {
+                errorsDiv.textContent = stderr;
+                errorsDiv.classList.add('error');
+                errorsDiv.classList.remove('empty');
+            } else {
+                errorsDiv.innerHTML = '<div class="empty">No errors</div>';
+                errorsDiv.classList.remove('error');
+                errorsDiv.classList.add('empty');
+            }
+            
+            // Show modal
+            modal.classList.add('show');
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('executionModal');
+            modal.classList.remove('show');
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('executionModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Filter functionality
+        document.getElementById('languageFilter').addEventListener('change', function() {
+            const lang = this.value;
+            if (lang) {
+                window.location.href = '/editor/history/?language=' + lang;
+            } else {
+                window.location.href = '/editor/history/';
+            }
+        });
+    </script>
+</body>
+</html>
